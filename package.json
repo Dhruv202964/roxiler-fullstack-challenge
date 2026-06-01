@@ -1,0 +1,32 @@
+{
+  "name": "roxiler-fullstack-challenge",
+  "version": "1.0.0",
+  "description": "Full-stack web application for store ratings and role-based access control, built for the Roxiler Systems Intern Coding Challenge.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dhruv202964/roxiler-fullstack-challenge.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dhruv202964/roxiler-fullstack-challenge/issues"
+  },
+  "homepage": "https://github.com/Dhruv202964/roxiler-fullstack-challenge#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.21.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

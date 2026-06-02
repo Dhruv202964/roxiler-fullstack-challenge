@@ -1,4 +1,4 @@
-const { pool } = require('../server');
+const pool = require('../db');
 const bcrypt = require('bcrypt');
 
 const getDashboardStats = async (req, res) => {

@@ -1,20 +1,45 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  
+  const [users, setUsers] = useState([]);
+  const [stores, setStores] = useState([]);
+  const [fetchError, setFetchError] = useState('');
 
   useEffect(() => {
-    // Route Protection: Verify the user is actually an Admin
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('userRole');
 
     if (!token || role !== 'admin') {
       navigate('/login');
-    } else {
-      setIsLoading(false);
+      return; 
     }
+
+    const fetchAdminData = async () => {
+      try {
+        const config = {
+          headers: { Authorization: `Bearer ${token}` }
+        };
+
+        const [usersRes, storesRes] = await Promise.all([
+          axios.get('http://localhost:5000/api/admin/users', config),
+          axios.get('http://localhost:5000/api/admin/stores', config)
+        ]);
+
+        setUsers(usersRes.data);
+        setStores(storesRes.data);
+        setIsLoading(false);
+      } catch (err) {
+        setFetchError('Failed to load dashboard data.');
+        setIsLoading(false);
+      }
+    };
+
+    fetchAdminData();
   }, [navigate]);
 
   const handleLogout = () => {
@@ -34,7 +59,6 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-slate-50 flex font-sans">
       
-      {/* Sidebar */}
       <aside className="w-64 bg-slate-900 text-white flex flex-col hidden md:flex shadow-xl">
         <div className="h-16 flex items-center px-6 border-b border-slate-700">
           <h1 className="text-xl font-bold tracking-wider">ROXILER<span className="text-indigo-400">ADMIN</span></h1>
@@ -58,10 +82,8 @@ const AdminDashboard = () => {
         </div>
       </aside>
 
-      {/* Main Content Area */}
       <main className="flex-1 flex flex-col">
         
-        {/* Top Header */}
         <header className="h-16 bg-white shadow-sm border-b border-slate-200 flex items-center justify-between px-8">
           <h2 className="text-xl font-semibold text-slate-800">Admin Control Panel</h2>
           <div className="flex items-center space-x-4">
@@ -75,10 +97,14 @@ const AdminDashboard = () => {
           </div>
         </header>
 
-        {/* Dashboard Content */}
         <div className="p-8 overflow-auto">
           
-          {/* Quick Stats Cards */}
+          {fetchError && (
+            <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-md animate-pulse">
+              <p className="text-sm text-red-700 font-medium">{fetchError}</p>
+            </div>
+          )}
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex items-center space-x-4">
               <div className="p-3 bg-blue-50 text-blue-600 rounded-lg">
@@ -86,7 +112,7 @@ const AdminDashboard = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-slate-500">Total Users</p>
-                <p className="text-2xl font-bold text-slate-900">--</p>
+                <p className="text-2xl font-bold text-slate-900">{users.length}</p>
               </div>
             </div>
             
@@ -96,7 +122,7 @@ const AdminDashboard = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-slate-500">Total Stores</p>
-                <p className="text-2xl font-bold text-slate-900">--</p>
+                <p className="text-2xl font-bold text-slate-900">{stores.length}</p>
               </div>
             </div>
 
@@ -111,10 +137,72 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* Placeholder for Data Table */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8 text-center">
-            <h3 className="text-lg font-medium text-slate-800 mb-2">System Data Viewer</h3>
-            <p className="text-slate-500">The Axios API calls to fetch users and stores will be connected here.</p>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden mb-8">
+            <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
+              <h3 className="text-lg font-semibold text-slate-800">Registered Users</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-100">
+                    <th className="px-6 py-3 font-medium">ID</th>
+                    <th className="px-6 py-3 font-medium">Name</th>
+                    <th className="px-6 py-3 font-medium">Email</th>
+                    <th className="px-6 py-3 font-medium">Role</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {users.map((user) => (
+                    <tr key={user.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-6 py-4 text-sm text-slate-600">{user.id}</td>
+                      <td className="px-6 py-4 text-sm font-medium text-slate-900">{user.name}</td>
+                      <td className="px-6 py-4 text-sm text-slate-600">{user.email}</td>
+                      <td className="px-6 py-4 text-sm">
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${user.role === 'admin' ? 'bg-purple-100 text-purple-700' : user.role === 'owner' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                          {user.role}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
+              <h3 className="text-lg font-semibold text-slate-800">Registered Stores</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-100">
+                    <th className="px-6 py-3 font-medium">ID</th>
+                    <th className="px-6 py-3 font-medium">Store Name</th>
+                    <th className="px-6 py-3 font-medium">Address</th>
+                    <th className="px-6 py-3 font-medium">Rating</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {stores.length > 0 ? (
+                    stores.map((store) => (
+                      <tr key={store.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-6 py-4 text-sm text-slate-600">{store.id}</td>
+                        <td className="px-6 py-4 text-sm font-medium text-slate-900">{store.name}</td>
+                        <td className="px-6 py-4 text-sm text-slate-600">{store.address}</td>
+                        <td className="px-6 py-4 text-sm text-slate-600">{store.rating || 'N/A'}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="px-6 py-8 text-center text-sm text-slate-500">
+                        No stores registered yet.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
         </div>

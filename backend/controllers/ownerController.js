@@ -1,4 +1,4 @@
-const { pool } = require('../server');
+const pool = require('../db');
 
 const getOwnerDashboard = async (req, res) => {
     try {

@@ -23,10 +23,49 @@ Follow these steps to get the application running on your local machine.
 ### 1. Database Setup (PostgreSQL)
 1. Open pgAdmin or your PostgreSQL CLI.
 2. Create a new database named `roxiler`.
-3. Open the Query Tool and run the SQL commands (ensure tables are created for `users`, `stores`, and `ratings`).
+3. Open the Query Tool and run your SQL commands to create the `users`, `stores`, and `ratings` tables.
 
 ### 2. Backend Setup
 Open a terminal and navigate to the backend directory:
 ```bash
 cd backend
 npm install
+
+```
+
+Start the backend server (runs on `http://localhost:5000`):
+
+```bash
+npm run dev
+
+```
+
+### 3. Frontend Setup
+
+Open a second, separate terminal and navigate to the frontend directory:
+
+```bash
+cd frontend
+npm install
+
+```
+
+Start the React application (usually runs on `http://localhost:5173` or `3000`):
+
+```bash
+npm run dev
+
+```
+
+---
+
+## 🔐 Master Test Credentials
+
+To test the role-based routing, you can use the following pre-configured Admin account, or create new Owner/User accounts via the Signup page.
+
+**System Admin:**
+
+* **Email:** admin@roxiler.com
+* **Password:** Password123!
+
+```

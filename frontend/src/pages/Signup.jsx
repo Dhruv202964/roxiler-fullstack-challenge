@@ -3,7 +3,13 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
 const Signup = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', address: '' });
+  const [formData, setFormData] = useState({ 
+    name: '', 
+    email: '', 
+    password: '', 
+    address: '',
+    role: 'user' 
+  });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -19,10 +25,8 @@ const Signup = () => {
     setIsLoading(true);
 
     try {
-      // Create the normal user
       await axios.post('http://localhost:5000/api/auth/signup', formData);
       
-      // Auto-login right after signing up
       const loginRes = await axios.post('http://localhost:5000/api/auth/login', {
         email: formData.email,
         password: formData.password
@@ -31,8 +35,11 @@ const Signup = () => {
       localStorage.setItem('token', loginRes.data.token);
       localStorage.setItem('userRole', loginRes.data.user.role);
       
-      // Since they just signed up, they are a normal user
-      navigate('/user');
+      if (loginRes.data.user.role === 'owner') {
+        navigate('/owner');
+      } else {
+        navigate('/user');
+      }
 
     } catch (err) {
       setError(err.response?.data?.error || 'Signup failed. Please try again.');
@@ -49,7 +56,7 @@ const Signup = () => {
             Create an Account
           </h2>
           <p className="mt-2 text-sm text-slate-500">
-            Join Roxiler to start rating your favorite stores
+            Join Roxiler to start rating or managing stores
           </p>
         </div>
 
@@ -60,6 +67,19 @@ const Signup = () => {
         )}
 
         <form onSubmit={handleSignup} className="space-y-5">
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-1">Account Type</label>
+            <select 
+              name="role" 
+              value={formData.role}
+              onChange={handleChange}
+              className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-slate-50 hover:bg-white"
+            >
+              <option value="user">Normal User (Rate Stores)</option>
+              <option value="owner">Store Owner (Manage Stores)</option>
+            </select>
+          </div>
+
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-1">Full Name</label>
             <input 

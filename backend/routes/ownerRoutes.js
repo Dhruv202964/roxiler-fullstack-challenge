@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getOwnerDashboard } = require('../controllers/ownerController');
+const { getOwnerStores, createStore, getStoreReviews } = require('../controllers/ownerController');
 const { verifyToken } = require('../middleware/authMiddleware');
 
 const verifyOwner = (req, res, next) => {
@@ -10,6 +10,8 @@ const verifyOwner = (req, res, next) => {
     next();
 };
 
-router.get('/dashboard', verifyToken, verifyOwner, getOwnerDashboard);
+router.get('/stores', verifyToken, verifyOwner, getOwnerStores);
+router.post('/stores', verifyToken, verifyOwner, createStore);
+router.get('/stores/:id/reviews', verifyToken, verifyOwner, getStoreReviews);
 
 module.exports = router;
